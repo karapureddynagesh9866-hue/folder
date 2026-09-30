@@ -1,137 +1,36 @@
-import { createContext, useContext, useReducer } from "react";
-import "./App.css";
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "./layouts/Mainlayout.jsx";
+import ServicesLayout from "./layouts/ServicesLayout.jsx";
 
-/* ---------- Context + reducer ---------- */
-const CounterContext = createContext(null);
+import Home from "./pages1/Home.jsx";
+import About from "./pages1/About.jsx";
+import Products from "./pages1/Products.jsx";
+import Contact from "./pages1/Contact.jsx";
+import NotFound from "./pages1/NotFound.jsx";
 
-const ACTIONS = {
-  INCREMENT: "INCREMENT",
-  DECREMENT: "DECREMENT",
-  RESET: "RESET",
-};
+import ServicesIndex from "./pages/services/servicesindex.jsx";
+import WebDevelopment from "./pages/services/WebDevelopment.jsx";
+import AppDevelopment from "./pages/services/Appdevelopment.jsx";
+import UIUXDesign from "./pages/services/UIUXdesign.jsx";
 
-const initialState = { count: 0, lastAction: "None yet" };
-
-function counterReducer(state, action) {
-  switch (action.type) {
-    case ACTIONS.INCREMENT:
-      return { count: state.count + 1, lastAction: "Incremented" };
-    case ACTIONS.DECREMENT:
-      return { count: state.count - 1, lastAction: "Decremented" };
-    case ACTIONS.RESET:
-      return { ...initialState, lastAction: "Reset" };
-    default:
-      return state;
-  }
-}
-
-function CounterProvider({ children }) {
-  const [state, dispatch] = useReducer(counterReducer, initialState);
+export default function App() {
   return (
-    <CounterContext.Provider value={{ state, dispatch }}>
-      {children}
-    </CounterContext.Provider>
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
+
+        <Route path="services" element={<ServicesLayout />}>
+          <Route index element={<ServicesIndex />} />
+          <Route path="web-development" element={<WebDevelopment />} />
+          <Route path="app-development" element={<AppDevelopment />} />
+          <Route path="ui-ux-design" element={<UIUXDesign />} />
+        </Route>
+
+        <Route path="products" element={<Products />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }
-
-function useCounter() {
-  const context = useContext(CounterContext);
-  if (context === null) {
-    throw new Error("useCounter must be used inside <CounterProvider>");
-  }
-  return context;
-}
-
-/* ---------- Components ---------- */
-function CounterDisplay() {
-  const { state } = useCounter();
-  return (
-    <div className="display" aria-live="polite">
-      <span className="display-label">Current count</span>
-      <span className="display-value">{state.count}</span>
-    </div>
-  );
-}
-
-function CounterControls() {
-  const { dispatch } = useCounter();
-  return (
-    <div className="controls">
-      <button
-        className="btn btn-dec"
-        onClick={() => dispatch({ type: ACTIONS.DECREMENT })}
-      >
-        Decrement
-      </button>
-      <button
-        className="btn btn-reset"
-        onClick={() => dispatch({ type: ACTIONS.RESET })}
-      >
-        Reset
-      </button>
-      <button
-        className="btn btn-inc"
-        onClick={() => dispatch({ type: ACTIONS.INCREMENT })}
-      >
-        Increment
-      </button>
-    </div>
-  );
-}
-
-function HeaderBadge() {
-  const { state } = useCounter();
-  return <span className="badge">Count: {state.count}</span>;
-}
-
-function SharedStatePanel() {
-  const { state } = useCounter();
-  return (
-    <section className="panel">
-      <h2>Shared through Context</h2>
-      <p className="panel-note">
-        These components receive no props. They read the same reducer state
-        from the Provider.
-      </p>
-      <dl className="panel-grid">
-        <div>
-          <dt>Count (Panel)</dt>
-          <dd>{state.count}</dd>
-        </div>
-        <div>
-          <dt>Last action</dt>
-          <dd>{state.lastAction}</dd>
-        </div>
-        <div>
-          <dt>Count (Badge)</dt>
-          <dd>
-            <HeaderBadge />
-          </dd>
-        </div>
-      </dl>
-    </section>
-  );
-}
-
-/* ---------- App ---------- */
-function App() {
-  return (
-    <CounterProvider>
-      <main className="page">
-        <header className="page-head">
-          <h1>Counter with useContext + useReducer</h1>
-          <p>State and dispatch live in one Provider. No props are passed down.</p>
-        </header>
-
-        <section className="card">
-          <CounterDisplay />
-          <CounterControls />
-        </section>
-
-        <SharedStatePanel />
-      </main>
-    </CounterProvider>
-  );
-}
-
-export default App;
